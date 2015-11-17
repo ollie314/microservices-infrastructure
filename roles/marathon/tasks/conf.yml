@@ -17,7 +17,7 @@
   file:
     dest: /etc/marathon/conf
     state: directory
-    mode: 0700
+    mode: 0600
     recurse: yes
   tags:
     - marathon
@@ -27,7 +27,7 @@
   file:
     dest: /etc/marathon/store
     state: directory
-    mode: 0700
+    mode: 0600
     recurse: yes
   tags:
     - marathon
@@ -37,7 +37,7 @@
   file:
     dest: /etc/marathon/apps
     state: directory
-    mode: 0700
+    mode: 0600
     recurse: yes
   tags:
     - marathon
@@ -103,7 +103,7 @@
   file:
     dest: /etc/marathon/conf/{{ item.key }}
     state: absent
-    mode: 0700
+    mode: 0600
   with_items:
     - key: http_credentials
       value: "{{ marathon_http_credentials }}"

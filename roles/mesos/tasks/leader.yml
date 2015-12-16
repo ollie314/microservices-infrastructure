@@ -9,6 +9,18 @@
   tags:
     - mesos
 
+- name: configure mesos hostname
+  sudo: yes
+  template:
+    src: hostname.j2
+    dest: /etc/mesos-master/hostname
+    mode: 0600
+  notify:
+    - restart mesos leader
+  tags:
+    - mesos
+
+
 - name: write leader credentials
   sudo: yes
   when: do_mesos_framework_auth|bool or do_mesos_follower_auth|bool

@@ -8,6 +8,16 @@
   tags:
     - mesos
 
+- name: configure mesos hostname
+  sudo: yes
+  template:
+    src: hostname.j2
+    dest: /etc/mesos-slave/hostname
+    mode: 0600
+  notify: remove mesos follower metadata
+  tags:
+    - mesos
+
 - name: set containerizers
   sudo: yes
   copy:

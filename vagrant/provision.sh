@@ -4,14 +4,6 @@ set -ex
 control_ip=$1
 worker_ip=$2
 
-# Do some sanity checks first
-if [ ! -f /vagrant/terraform.yml ]; then
-  echo "Couldn't find /vagrant/terraform.yml, please create one."
-  echo "After creating one, run vagrant rsync && vagrant provision"
-  echo "to try again."
-  exit 1
-fi
-
 # Add control and worker to hosts file if they aren't there
 grep -q "control-01" /etc/hosts || echo "$control_ip   control-01" >> /etc/hosts
 grep -q "worker-001" /etc/hosts || echo "$worker_ip    worker-001" >> /etc/hosts
@@ -97,4 +89,4 @@ provider=virtualbox
 publicly_routable=true
 EOF
 
-ansible-playbook terraform.yml -e @security.yml -i ./vagrant/inventory
+ansible-playbook terraform.sample.yml -e @security.yml -i ./vagrant/inventory

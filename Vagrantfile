@@ -2,16 +2,6 @@
 # vi: set ft=ruby :
 require 'yaml'
 
-def load_security
-  fname = File.join(File.dirname(__FILE__), "security.yml")
-  if !File.exist? fname
-    $stderr.puts "security.yml not found - please run `./security-setup` and try again."
-    exit 1
-  end
-
-  YAML.load_file(fname)
-end
-
 VAGRANT_PRIVATE_IP_CONTROL_01 = "192.168.242.55"
 VAGRANT_PRIVATE_IP_WORKER_001 = "192.168.242.56"
 

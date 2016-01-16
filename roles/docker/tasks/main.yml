@@ -141,10 +141,10 @@
   command: journalctl -u docker --no-pager -l
   tags:
     - bootstrap
+
 - debug: msg='{{ dkr2.stdout }}'
   tags:
     - bootstrap
-
 
 - name: debug
   register: dkr3
@@ -175,6 +175,7 @@
 - debug: msg='{{ dkr.stdout }}'
   tags:
     - bootstrap
+
 ############################################# DEBUGGING
 
 - include: collectd.yml

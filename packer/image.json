@@ -27,6 +27,17 @@
         },
         {
             "type": "ansible-local",
+            "only": ["amazon-ebs"],
+            "playbook_file": "{{pwd}}/playbooks/upgrade-packages.yml",
+            "extra_arguments": [ "--extra-vars=\"packer=true\"" ]
+        },
+        {
+            "type": "shell",
+            "only": ["amazon-ebs"],
+            "inline": ["sudo reboot"]
+        },
+        {
+            "type": "ansible-local",
             "only": ["virtualbox-iso"],
             "playbook_file": "{{pwd}}/terraform.sample.yml",
             "inventory_groups": "role=control,role=worker,role=edge",

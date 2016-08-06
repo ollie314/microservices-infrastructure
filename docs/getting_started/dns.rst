@@ -18,7 +18,7 @@ These are the supported DNS providers:
 
    cloudflare.rst
    dnsimple.rst
-   gce.rst
+   clouddns.rst
    route53.rst
 
 DNS Records and Configuration
@@ -30,11 +30,11 @@ The providers create a uniform set of DNS A records:
 - ``{short-name}-edge-{nn}.node{subdomain}.{domain}``
 - ``{short-name}-worker-{nnn}.node{subdomain}.{domain}``
 - ``{control}{subdomain}.{domain}``
-- ``*{subdomain}.{domain}``
+- ``*.{subdomain}.{domain}``
 
 For example, with ``short-name=mantl``, ``domain=example.com``, a blank
-subdomain, 3 control nodes, 4 worker nodes, and 2 edge nodes, that will give us
-these DNS records:
+subdomain, 3 control nodes, 4 worker nodes, 2 Kubernetes worker nodes, and 2
+edge nodes, that will give us these DNS records:
 
 - ``mantl-control-01.node.example.com``
 - ``mantl-control-02.node.example.com``
@@ -43,13 +43,14 @@ these DNS records:
 - ``mantl-worker-002.node.example.com``
 - ``mantl-worker-003.node.example.com``
 - ``mantl-worker-004.node.example.com``
+- ``mantl-kubeworker-001.node.example.com``
+- ``mantl-kubeworker-002.node.example.com``
 - ``mantl-edge-01.node.example.com``
 - ``mantl-edge-02.node.example.com``
 - ``control.example.com`` (pointing to control 1)
 - ``control.example.com`` (pointing to control 2)
 - ``control.example.com`` (pointing to control 3)
-- ``*.example.com`` (pointing to edge 1)
-- ``*.example.com`` (pointing to edge 2)
+- ``*.example.com`` (pointing to edge node load balancer)
 
 If you don't want the DNS records hanging off the apex, you can specify the
 ``subdomain`` parameter to the DNS providers, which will be inserted in the
@@ -79,6 +80,7 @@ and DNS config into separate variables. You can do that like this:
 
     variable control_count { default = 3 }
     variable worker_count { default = 2 }
+    variable kubeworker_count { default = 2 }
     variable edge_count { default = 2 }
     variable short_name { default = "mantl" }
 
@@ -98,6 +100,8 @@ Then use those variables in the module like this:
       subdomain = ".do.test"
       worker_count = "${var.worker_count}"
       worker_ips = "${module.do-hosts.worker_ips}"
+      kubeworker_count = "${var.kubeworker_count}"
+      kubeworker_ips = "${module.do-hosts.kubeworker_ips}"
     }
 
 Configuration Variables
@@ -105,15 +109,15 @@ Configuration Variables
 
 Configuration is done with a set of consistent variables across the providers:
 
-.. data:: control_count, worker_count, and edge_count
+.. data:: control_count, worker_count, kubeworker_count, and edge_count
 
-   The count of control servers
+   The count of nodes for each role.
 
-.. data:: control_ips, worker_ips, and edge_ips
+.. data:: control_ips, worker_ips, kubeworker_ips, and edge_ips
 
    A comma-separated list of IPs. The cloud provider modules all export this as
-   ``control_ips``, ``worker_ips``, and ``edge_ips`` as well, so you can plug it
-   in like so:
+   ``control_ips``, ``worker_ips``, ``kubeworker_ips``, and ``edge_ips`` as
+   well, so you can plug it in like so:
 
    .. code-block:: javascript
 

@@ -8,12 +8,10 @@
     - marathon
     - bootstrap
 
-- name: install wait script
+- name: create consul acl for marathon
   sudo: yes
-  template:
-    src: marathon-wait-for-listen.sh.j2
-    dest: /usr/local/bin/marathon-wait-for-listen.sh
-    mode: 0755
+  run_once: yes
+  command: consul-cli acl-update --token={{ consul_acl_master_token }} --name="Marathon ACL Token" --rule='key:marathon:write' {{ consul_acl_marathon_token }}
   tags:
     - marathon
 
@@ -44,43 +42,6 @@
   tags:
     - marathon
 
-- meta: flush_handlers
-
-- include: nginx-proxy.yml
-
-- name: deploy iptables configuration
-  sudo: yes
-  copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-  with_items:
-    - src: marathon-consul.cfg
-      dest: /etc/consul-template/config.d
-  notify:
-    - reload consul-template
-  tags:
-    - marathon
-
-- name: deploy iptables template
-  sudo: yes
-  template:
-    src: marathon-iptables.tmpl.j2
-    dest: /etc/consul-template/templates/marathon-iptables.tmpl
-  notify:
-    - reload consul-template
-  tags:
-    - marathon
-
-- include: collectd.yml
-
-- name: ensure consul.d is present
-  sudo: yes
-  file:
-    path: "{{ consul_dir }}"
-    state: directory
-  tags:
-    - marathon
-
 - name: generate marathon consul service
   sudo: yes
   template:
@@ -91,6 +52,37 @@
   tags:
     - marathon
 
-- include: jobs.yml
+- meta: flush_handlers
 
-- include: distributive.yml
+- include: nginx-proxy.yml
+
+- name: write iptables configuration
+  run_once: true
+  command: consul-cli kv-write --token={{ consul_acl_secure_token }} secure/marathon/ip_tables {{ do_marathon_iptables }}
+  tags:
+    - marathon
+
+- name: deploy iptables configuration
+  sudo: yes
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: marathon-consul.cfg
+      dest: /etc/consul-template/config.d
+    - src: marathon-iptables.tmpl
+      dest: /etc/consul-template/templates
+  notify:
+    - reload consul-template
+  tags:
+    - marathon
+
+- name: ensure consul.d is present
+  sudo: yes
+  file:
+    path: "{{ consul_dir }}"
+    state: directory
+  tags:
+    - marathon
+
+- include: jobs.yml
